@@ -173,12 +173,72 @@
                         <h1 class="text-5xl md:text-8xl text-white leading-none tracking-tighter mb-4">ADVENTURE<br>AWAITS.</h1>
                         <p class="text-white font-bold mb-6 max-w-md">Type Matchups and Party Saving are now LIVE. Level up your strategy.</p>
                         <div class="flex gap-2">
-                             <button onclick="navigate('academy')" class="neo-btn bg-yellow-400">PLAY</button>
+                             <button onclick="navigate('academy')" class="neo-btn bg-yellow-400">PLAY NOW</button>
                              <button onclick="resetGame()" class="neo-btn bg-red-400 text-xs">RESET DATA</button>
                         </div>
                     </div>
                 </div>
+
+                <!-- NEW: FEATURES SECTION -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="neo-box p-6 bg-white">
+                        <div class="w-12 h-12 bg-yellow-400 border-2 border-black flex items-center justify-center mb-4 text-xl">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h3 class="font-black text-xl mb-2">TYPE MATRIX</h3>
+                        <p class="text-xs font-bold leading-relaxed">Strategic combat with full type advantages. Use Electric against Water for 2x damage.</p>
+                    </div>
+                    <div class="neo-box p-6 bg-white">
+                        <div class="w-12 h-12 bg-blue-400 border-2 border-black flex items-center justify-center mb-4 text-xl text-white">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                        </div>
+                        <h3 class="font-black text-xl mb-2">AUTO-SAVE</h3>
+                        <p class="text-xs font-bold leading-relaxed">Never lose your team. All caught Pokémon are automatically synced to local storage.</p>
+                    </div>
+                    <div class="neo-box p-6 bg-white">
+                        <div class="w-12 h-12 bg-purple-400 border-2 border-black flex items-center justify-center mb-4 text-xl text-white">
+                            <i class="fa-solid fa-moon"></i>
+                        </div>
+                        <h3 class="font-black text-xl mb-2">DYNAMIC WORLD</h3>
+                        <p class="text-xs font-bold leading-relaxed">Experience a real-time Day/Night cycle that changes the visuals of the game garden.</p>
+                    </div>
+                </div>
             </div>
+
+            <!-- NEW: FOOTER -->
+            <footer class="border-t-4 border-black bg-white p-8 mt-12 mb-20 md:mb-0">
+                <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
+                    <div>
+                        <div class="impact text-2xl mb-4">P-QUEST <span class="bg-black text-white px-2">ULT</span></div>
+                        <p class="text-[10px] font-bold max-w-xs opacity-60">The ultimate fan-made Poké-Quest experience built with modern web tech. No AI, just pure logic and APIs.</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-12">
+                        <div>
+                            <h4 class="font-black mb-4 text-sm">RESOURCES</h4>
+                            <ul class="text-[10px] font-bold space-y-2 uppercase">
+                                <li class="hover:underline cursor-pointer" onclick="navigate('pokedex')">Pokédex</li>
+                                <li class="hover:underline cursor-pointer" onclick="navigate('leaders')">Hall of Fame</li>
+                                <li class="hover:underline cursor-pointer">Patch Notes</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-black mb-4 text-sm">COMMUNITY</h4>
+                            <ul class="text-[10px] font-bold space-y-2 uppercase">
+                                <li class="hover:underline cursor-pointer">Discord</li>
+                                <li class="hover:underline cursor-pointer">GitHub</li>
+                                <li class="hover:underline cursor-pointer">Twitter</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-6xl mx-auto mt-12 pt-8 border-t-2 border-stone-100 flex justify-between items-center">
+                    <p class="text-[9px] font-black uppercase">© 2024 Poké-Quest Dev Team</p>
+                    <div class="flex gap-4 text-sm">
+                        <i class="fa-brands fa-github"></i>
+                        <i class="fa-brands fa-twitter"></i>
+                    </div>
+                </div>
+            </footer>
         </section>
 
         <!-- PARTY VIEW -->
