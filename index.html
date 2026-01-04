@@ -3,45 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POKÉ-QUEST | PREMIUM ULTIMATE</title>
+    <title>POKÉ-QUEST | ULTIMATE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap');
 
         :root {
-            --primary: #FFDE00;
-            --accent: #3b82f6;
-            --bg: #f5f5f5;
-            --text: #000;
-            --neo-shadow: 6px 6px 0px 0px #000;
+            --neo-yellow: #FFDE00;
+            --neo-blue: #3b82f6;
+            --neo-red: #ef4444;
+            --neo-green: #22c55e;
+            --border-width: 3px;
+            --border: var(--border-width) solid #000;
+            --env-filter: none;
         }
-
-        /* Premium Themes */
-        body.theme-neon { --primary: #00ffcc; --accent: #ff00ff; --bg: #0d0d0d; --text: #fff; --neo-shadow: 6px 6px 0px 0px #ff00ff; }
-        body.theme-pastel { --primary: #ffb7b2; --accent: #b2e2f2; --bg: #faf3dd; --text: #4a4a4a; --neo-shadow: 4px 4px 0px 0px #4a4a4a; }
 
         body {
             font-family: 'Space Mono', monospace;
-            background-color: var(--bg);
-            color: var(--text);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: #fff;
+            color: #000;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.5s ease;
         }
+
+        .night-mode { background-color: #1a1a2e !important; --env-filter: brightness(0.6) sepia(0.2) hue-rotate(200deg); }
+        .rain-mode { --env-filter: hue-rotate(180deg) brightness(0.8); }
+        .storm-mode { --env-filter: contrast(1.2) brightness(0.7) saturate(1.5); }
 
         h1, h2, h3, .impact { font-family: 'Archivo Black', sans-serif; text-transform: uppercase; }
 
         .neo-box {
             background: white;
-            border: 3px solid var(--text);
-            box-shadow: var(--neo-shadow);
-            transition: all 0.2s ease;
+            border: var(--border);
+            box-shadow: 6px 6px 0px 0px #000;
+            transition: all 0.1s ease;
         }
-        body.theme-neon .neo-box { background: #1a1a1a; }
 
         .neo-btn {
-            background: var(--primary);
-            border: 3px solid var(--text);
-            box-shadow: 4px 4px 0px 0px var(--text);
+            background: var(--neo-yellow);
+            border: var(--border);
+            box-shadow: 4px 4px 0px 0px #000;
             padding: 0.75rem 1.5rem;
             font-weight: 900;
             cursor: pointer;
@@ -50,536 +53,611 @@
             justify-content: center;
             gap: 8px;
             text-transform: uppercase;
-            color: #000;
         }
 
-        .neo-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px var(--text); }
-        .neo-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .neo-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px #000; }
 
         #game-container {
             width: 100%;
             max-width: 600px;
             aspect-ratio: 4 / 3;
             background: #90cc7d;
-            border: 4px solid var(--text);
+            border: var(--border);
             position: relative;
             overflow: hidden;
             margin: 0 auto;
             image-rendering: pixelated;
+            filter: var(--env-filter);
         }
 
-        /* Weather Overlays */
-        .rain-overlay { background: linear-gradient(transparent, rgba(0,0,255,0.1)); pointer-events: none; }
-        .storm-overlay { animation: flash 5s infinite; pointer-events: none; }
-        @keyframes flash { 0%, 90%, 100% { background: transparent; } 92%, 95% { background: rgba(255,255,255,0.4); } }
+        .grid-tile { position: absolute; }
+        .tall-grass { background: #5a9b44; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        
+        #player {
+            position: absolute;
+            z-index: 50;
+            transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         .view { display: none; padding-bottom: 100px; }
         .view.active { display: block; }
 
-        .premium-tag {
-            background: linear-gradient(90deg, #ffd700, #ff8c00);
-            color: black;
-            padding: 2px 8px;
-            font-size: 10px;
-            font-weight: 900;
-            border-radius: 4px;
-            animation: pulse 2s infinite;
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 1000;
         }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-        .charge-bar { height: 6px; background: #333; width: 100%; margin-top: 4px; border: 1px solid #000; }
-        .charge-fill { height: 100%; background: #00ffff; width: 0%; transition: width 0.3s; }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        
+        .nav-item.active { color: var(--neo-blue); }
 
+        @keyframes encounter-flash {
+            0%, 100% { background: transparent; }
+            20%, 60% { background: white; }
+            40%, 80% { background: black; }
+        }
+        .flashing { animation: encounter-flash 0.6s steps(4); }
+
+        .hp-bar { height: 10px; background: #ddd; border: 2px solid #000; border-radius: 2px; overflow: hidden; }
+        .hp-fill { height: 100%; background: #22c55e; transition: width 0.5s ease; }
+        .hp-low { background: #ef4444 !important; }
+
+        .type-badge { font-size: 7px; border: 1px solid #000; padding: 0 4px; text-transform: uppercase; font-weight: bold; }
+        
         #toast {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: var(--text);
-            color: var(--bg);
-            padding: 12px 24px;
+            background: black;
+            color: white;
+            padding: 10px 20px;
             font-weight: bold;
-            z-index: 9999;
+            z-index: 2000;
             display: none;
-            border: 2px solid var(--primary);
+            border: 2px solid white;
+        }
+
+        .weather-indicator {
+            padding: 2px 8px;
+            background: black;
+            color: white;
+            font-size: 8px;
+            border: 2px solid white;
         }
     </style>
 </head>
-<body>
+<body class="bg-stone-100">
 
-    <div id="toast">ACTION COMPLETE</div>
+    <div id="toast">GAME SAVED</div>
 
-    <!-- Header -->
-    <header class="fixed top-0 w-full bg-white border-b-4 border-black px-4 md:px-8 py-3 flex justify-between items-center z-[1100] theme-box">
-        <div class="impact text-2xl flex items-center gap-2">
-            P-QUEST <span class="bg-black text-white px-2">PRO</span>
+    <header class="hidden md:flex fixed top-0 w-full bg-white border-b-4 border-black px-8 py-4 justify-between items-center z-[1100]">
+        <div class="impact text-3xl tracking-tighter cursor-pointer" onclick="navigate('home')">
+            P-QUEST <span class="bg-black text-white px-2">ULT</span>
         </div>
-        <div class="flex items-center gap-4">
-            <div class="text-xs font-bold hidden md:block">💎 <span id="diamond-count">0</span></div>
-            <div class="flex gap-2">
-                <button onclick="toggleTheme()" class="neo-btn p-2 text-xs" title="Switch Theme"><i class="fa-solid fa-palette"></i></button>
-            </div>
+        <div class="flex gap-6 font-bold uppercase text-sm">
+            <button onclick="navigate('home')" class="hover:underline">Home</button>
+            <button onclick="navigate('pokedex')" class="hover:underline">Dex</button>
+            <button onclick="navigate('academy')" class="hover:underline">Academy</button>
+            <button onclick="navigate('party')" class="hover:underline">Party</button>
+            <button onclick="navigate('leaders')" class="hover:underline">Leaders</button>
         </div>
     </header>
 
-    <div class="fixed bottom-0 left-0 right-0 bg-white border-t-4 border-black flex justify-around py-3 z-[1000] md:max-w-xs md:left-auto md:border-l-4 md:rounded-tl-xl">
-        <button onclick="navigate('home')" class="flex flex-col items-center text-[10px] font-bold uppercase"><i class="fa-solid fa-house mb-1"></i>Home</button>
-        <button onclick="navigate('academy')" class="flex flex-col items-center text-[10px] font-bold uppercase"><i class="fa-solid fa-map mb-1"></i>World</button>
-        <button onclick="navigate('summon')" class="flex flex-col items-center text-[10px] font-bold uppercase text-orange-500"><i class="fa-solid fa-bolt-lightning mb-1"></i>Summon</button>
-        <button onclick="navigate('party')" class="flex flex-col items-center text-[10px] font-bold uppercase"><i class="fa-solid fa-shield-halved mb-1"></i>Team</button>
+    <div class="mobile-nav md:hidden">
+        <div class="nav-item active" onclick="navigate('home', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
+        <div class="nav-item" onclick="navigate('pokedex', this)"><i class="fa-solid fa-book"></i><span>Dex</span></div>
+        <div class="nav-item" onclick="navigate('academy', this)"><i class="fa-solid fa-gamepad"></i><span>Play</span></div>
+        <div class="nav-item" onclick="navigate('party', this)"><i class="fa-solid fa-users"></i><span>Party</span></div>
+        <div class="nav-item" onclick="navigate('leaders', this)"><i class="fa-solid fa-trophy"></i><span>Champs</span></div>
     </div>
 
-    <main class="pt-24 pb-20 px-4">
+    <main class="md:pt-24 pt-4">
 
-        <!-- Home / Dash -->
         <section id="home" class="view active">
-            <div class="neo-box p-6 mb-6 bg-gradient-to-br from-indigo-600 to-purple-700 text-white">
-                <div class="premium-tag mb-2 w-fit">PREMIUM ACCOUNT</div>
-                <h1 class="text-5xl leading-none mb-4">WELCOME,<br>ELITE TRAINER.</h1>
-                <div class="grid grid-cols-2 gap-4 mt-8">
-                    <div class="bg-black/20 p-4 rounded border border-white/20">
-                        <div class="text-[10px] opacity-70 uppercase font-bold">Battles Won</div>
-                        <div class="text-2xl font-black" id="stat-wins">0</div>
-                    </div>
-                    <div class="bg-black/20 p-4 rounded border border-white/20">
-                        <div class="text-[10px] opacity-70 uppercase font-bold">Collection</div>
-                        <div class="text-2xl font-black" id="stat-dex">0%</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="neo-box p-4 bg-white">
-                    <h3 class="font-black mb-2">PRO FEATURES ACTIVE</h3>
-                    <ul class="text-[10px] space-y-2 font-bold opacity-70">
-                        <li><i class="fa-solid fa-check text-green-500"></i> NO ADS FOREVER</li>
-                        <li><i class="fa-solid fa-check text-green-500"></i> DYNAMIC WEATHER BOOSTS (1.5x)</li>
-                        <li><i class="fa-solid fa-check text-green-500"></i> AUTO-EVOLVE AT 3 WINS</li>
-                        <li><i class="fa-solid fa-check text-green-500"></i> CLOUD SAVING ENABLED</li>
-                    </ul>
-                </div>
-                <div class="neo-box p-4 bg-yellow-400">
-                    <h3 class="font-black mb-2">COLLECT GEMS</h3>
-                    <p class="text-[10px] font-bold mb-4 italic">Gems are earned by winning battles. Use them to summon Legendary Pokémon!</p>
-                    <button onclick="addGems(50)" class="w-full bg-black text-white p-2 text-xs font-bold uppercase">Dev: Add 50 Gems</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Summon / Gacha -->
-        <section id="summon" class="view">
-            <div class="max-w-xl mx-auto text-center">
-                <div class="premium-tag mx-auto w-fit mb-4">ELITE SUMMON GATE</div>
-                <h2 class="text-4xl tracking-tighter mb-2">RARE SUMMON</h2>
-                <p class="text-xs font-bold opacity-60 mb-8 uppercase tracking-widest">Guaranteed Rare or Higher</p>
-                
-                <div class="neo-box p-8 bg-black mb-6 relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent"></div>
-                    <div id="summon-orb" class="w-32 h-32 bg-white rounded-full mx-auto flex items-center justify-center border-8 border-orange-500 shadow-[0_0_50px_rgba(255,140,0,0.5)] transition-all duration-700">
-                        <i class="fa-solid fa-dna text-4xl text-orange-500"></i>
+            <div class="px-4">
+                <div class="neo-box bg-blue-500 p-8 mb-6 relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h1 class="text-5xl md:text-8xl text-white leading-none tracking-tighter mb-4">EVOLUTION<br>UPDATE.</h1>
+                        <p class="text-white font-bold mb-6 max-w-md">Win battles to evolve your team! Plus, watch the skies for weather bonuses.</p>
+                        <div class="flex gap-2">
+                             <button onclick="navigate('academy')" class="neo-btn bg-yellow-400">PLAY NOW</button>
+                             <button onclick="resetGame()" class="neo-btn bg-red-400 text-xs">RESET DATA</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-4">
-                    <button id="summon-btn" onclick="performSummon()" class="neo-btn w-full bg-orange-500 text-white">
-                        SUMMON (20 💎)
-                    </button>
-                    <p class="text-[9px] font-bold opacity-50 uppercase">Odds: 80% Rare | 15% Epic | 5% Legendary</p>
-                </div>
-
-                <div id="summon-result" class="mt-8 hidden animate-bounce">
-                    <div class="neo-box p-4 bg-white inline-block">
-                        <img id="result-img" src="" class="w-24 h-24 mx-auto">
-                        <h4 id="result-name" class="font-black uppercase mt-2"></h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="neo-box p-6 bg-white">
+                        <div class="w-12 h-12 bg-yellow-400 border-2 border-black flex items-center justify-center mb-4 text-xl">
+                            <i class="fa-solid fa-dna"></i>
+                        </div>
+                        <h3 class="font-black text-xl mb-2">EVOLUTIONS</h3>
+                        <p class="text-xs font-bold leading-relaxed">Win 3 battles with a Pokémon to trigger its evolution. Watch your starters grow!</p>
+                    </div>
+                    <div class="neo-box p-6 bg-white">
+                        <div class="w-12 h-12 bg-blue-400 border-2 border-black flex items-center justify-center mb-4 text-xl text-white">
+                            <i class="fa-solid fa-cloud-bolt"></i>
+                        </div>
+                        <h3 class="font-black text-xl mb-2">WEATHER SYSTEM</h3>
+                        <p class="text-xs font-bold leading-relaxed">Rain boosts Water moves. Storms boost Electric. Adapt to the changing conditions.</p>
+                    </div>
+                    <div class="neo-box p-6 bg-white">
+                        <div class="w-12 h-12 bg-purple-400 border-2 border-black flex items-center justify-center mb-4 text-xl text-white">
+                            <i class="fa-solid fa-moon"></i>
+                        </div>
+                        <h3 class="font-black text-xl mb-2">DYNAMIC WORLD</h3>
+                        <p class="text-xs font-bold leading-relaxed">Experience a real-time Day/Night cycle that changes the visuals of the game garden.</p>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- Academy / Play -->
-        <section id="academy" class="view">
-            <div id="explore-ui">
-                <div class="flex justify-between items-end mb-2">
+            <footer class="border-t-4 border-black bg-white p-8 mt-12 mb-20 md:mb-0">
+                <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
                     <div>
-                        <div id="weather-label" class="text-[8px] font-black uppercase px-2 py-1 bg-black text-white inline-block">Weather: Clear</div>
-                        <div class="text-[10px] font-bold mt-1" id="loc-label">Area: Viridian Garden</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-[10px] font-bold uppercase" id="time-label">12:00 PM</div>
+                        <div class="impact text-2xl mb-4">P-QUEST <span class="bg-black text-white px-2">ULT</span></div>
+                        <p class="text-[10px] font-bold max-w-xs opacity-60">The ultimate fan-made Poké-Quest experience. Now with evolution logic.</p>
                     </div>
                 </div>
+            </footer>
+        </section>
 
-                <div id="game-container">
-                    <div id="tiles-layer"></div>
-                    <div id="player" class="w-10 h-10 flex items-center justify-center z-[100]">
-                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" class="w-full">
-                    </div>
-                    <div id="weather-fx" class="absolute inset-0 z-10"></div>
-                </div>
-
-                <div class="mt-8 grid grid-cols-3 max-w-[200px] mx-auto gap-2">
-                    <div></div><button class="neo-box aspect-square flex items-center justify-center" onclick="move(0,-1)"><i class="fa-solid fa-chevron-up"></i></button><div></div>
-                    <button class="neo-box aspect-square flex items-center justify-center" onclick="move(-1,0)"><i class="fa-solid fa-chevron-left"></i></button>
-                    <button class="neo-box aspect-square flex items-center justify-center" onclick="move(0,1)"><i class="fa-solid fa-chevron-down"></i></button>
-                    <button class="neo-box aspect-square flex items-center justify-center" onclick="move(1,0)"><i class="fa-solid fa-chevron-right"></i></button>
+        <section id="party" class="view px-4">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-4xl tracking-tighter mb-4">YOUR TEAM</h2>
+                <div id="party-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                <div id="party-empty" class="neo-box p-12 text-center bg-stone-50 hidden">
+                    <p class="font-black opacity-30">NO POKÉMON IN PARTY.</p>
                 </div>
             </div>
+        </section>
 
-            <!-- Battle UI -->
-            <div id="battle-ui" class="hidden">
-                <div class="neo-box bg-white overflow-hidden">
-                    <div class="relative h-48 bg-emerald-100 flex items-center justify-center border-b-4 border-black p-4" id="battle-scene">
-                        <div class="absolute top-4 right-4 text-right">
-                            <div class="font-black text-xs uppercase" id="enemy-name">???</div>
-                            <div class="hp-bar w-32 h-3 border-2 border-black bg-stone-200 mt-1">
-                                <div id="enemy-hp-fill" class="h-full bg-green-500 w-full transition-all"></div>
+        <section id="pokedex" class="view px-4">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-4xl tracking-tighter mb-4">DEX ARCHIVE</h2>
+                <div id="dex-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+                <div class="mt-8 text-center"><button id="load-more" onclick="loadBatch()" class="neo-btn">LOAD MORE</button></div>
+            </div>
+        </section>
+
+        <section id="academy" class="view px-4">
+            <div class="max-w-2xl mx-auto">
+                <div id="explore-ui">
+                    <div class="flex justify-between items-center mb-2 font-bold text-[10px]">
+                        <div class="flex gap-2">
+                            <span id="time-display">TIME: 12:00 PM</span>
+                            <span id="weather-display" class="weather-indicator">WEATHER: CLEAR</span>
+                        </div>
+                        <span id="party-count">PARTY: 0/6</span>
+                    </div>
+                    <div id="game-container">
+                        <div id="tiles-layer"></div>
+                        <div id="player"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" class="w-full h-full object-contain"></div>
+                        <div id="overlay" class="absolute inset-0 pointer-events-none z-[100]"></div>
+                    </div>
+                    <div class="mt-6 flex justify-center">
+                        <div class="grid grid-cols-3 gap-2">
+                            <div></div><button class="neo-box w-14 h-14" onmousedown="move(0,-1)" ontouchstart="move(0,-1)"><i class="fa-solid fa-chevron-up"></i></button><div></div>
+                            <button class="neo-box w-14 h-14" onmousedown="move(-1,0)" ontouchstart="move(-1,0)"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button class="neo-box w-14 h-14" onmousedown="move(0,1)" ontouchstart="move(0,1)"><i class="fa-solid fa-chevron-down"></i></button>
+                            <button class="neo-box w-14 h-14" onmousedown="move(1,0)" ontouchstart="move(1,0)"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="battle-ui" class="hidden">
+                    <div class="neo-box p-4 bg-white">
+                        <div class="bg-green-100 border-2 border-black p-4 aspect-video flex flex-col justify-between relative" id="battle-scene">
+                            <div class="flex justify-end items-start gap-2">
+                                <div class="bg-white border-2 border-black p-2 w-40 text-[10px] font-bold">
+                                    <div id="battle-enemy-name">TARGET</div>
+                                    <div id="battle-enemy-types" class="flex gap-1 mb-1"></div>
+                                    <div class="hp-bar"><div id="enemy-hp" class="hp-fill w-full"></div></div>
+                                </div>
+                                <img id="battle-enemy-sprite" src="" class="w-20 animate-bounce">
+                            </div>
+                            <div class="flex justify-start items-end gap-2">
+                                <img id="battle-player-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/25.png" class="w-20">
+                                <div class="bg-white border-2 border-black p-2 w-40 text-[10px] font-bold">
+                                    <div id="battle-player-name">PIKACHU</div>
+                                    <div class="hp-bar mt-1"><div id="player-hp" class="hp-fill w-full"></div></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="absolute bottom-4 left-4">
-                            <div class="font-black text-xs uppercase" id="player-name">PIKACHU</div>
-                            <div class="hp-bar w-32 h-3 border-2 border-black bg-stone-200 mt-1">
-                                <div id="player-hp-fill" class="h-full bg-green-500 w-full transition-all"></div>
-                            </div>
-                            <div class="charge-bar"><div id="special-fill" class="charge-fill"></div></div>
+
+                        <div id="battle-controls" class="grid grid-cols-2 gap-2 mt-4">
+                            <button onclick="battleAction('attack')" class="neo-btn bg-blue-400 py-2 text-[10px]">STRIKE (TYPE)</button>
+                            <button onclick="battleAction('attack', true)" class="neo-btn bg-orange-400 py-2 text-[10px]">SWIFT (NEUTRAL)</button>
+                            <button onclick="battleAction('catch')" class="neo-btn bg-red-400 py-2 text-[10px]">POKÉ BALL</button>
+                            <button onclick="endBattle()" class="neo-btn bg-stone-200 py-2 text-[10px]">RUN</button>
                         </div>
-                        <img id="enemy-sprite" src="" class="w-24 absolute right-12 bottom-20">
-                        <img id="player-sprite" src="" class="w-24 absolute left-12 bottom-4">
-                    </div>
 
-                    <div id="battle-log" class="p-3 bg-stone-900 text-white font-mono text-[9px] min-h-[50px] uppercase">
-                        Encountered a wild Pokemon!
-                    </div>
-
-                    <div class="p-4 grid grid-cols-2 gap-2">
-                        <button onclick="battleAction('attack')" class="neo-btn text-xs bg-white">Standard Attack</button>
-                        <button id="special-btn" onclick="battleAction('special')" class="neo-btn text-xs bg-cyan-400" disabled>Special Move</button>
-                        <button onclick="battleAction('catch')" class="neo-btn text-xs bg-red-400">Ultra Ball</button>
-                        <button onclick="endBattle()" class="neo-btn text-xs bg-stone-200">Retreat</button>
+                        <div id="battle-log" class="mt-4 bg-black text-white p-3 font-mono text-[9px] uppercase min-h-[50px]"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Party -->
-        <section id="party" class="view">
-            <h2 class="text-3xl mb-4">TRAINER TEAM</h2>
-            <div id="party-list" class="grid grid-cols-1 gap-4"></div>
+        <section id="leaders" class="view px-4">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-4xl tracking-tighter mb-4">HALL OF FAME</h2>
+                <div id="leaders-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+            </div>
         </section>
-
     </main>
 
     <script>
-        // Constants
-        const GRID_SIZE = 12;
-        const THEMES = ['default', 'neon', 'pastel'];
-        
+        // Data & Constants
+        const GRID_SIZE = 15;
+        const TYPE_CHART = {
+            Electric: { Fire: 1, Water: 2, Grass: 0.5, Ground: 0, Flying: 2, Normal: 1 },
+            Normal: { Fire: 1, Water: 1, Grass: 1, Ground: 1, Flying: 1, Normal: 1 },
+            Water: { Fire: 2, Water: 0.5, Grass: 0.5, Ground: 2, Flying: 1, Normal: 1 },
+            Fire: { Fire: 0.5, Water: 0.5, Grass: 2, Ground: 1, Flying: 1, Normal: 1 }
+        };
+
+        const WEATHER_TYPES = ["CLEAR", "RAIN", "STORM"];
+
         // State
-        let currentTheme = 0;
-        let diamonds = parseInt(localStorage.getItem('pq_diamonds')) || 100;
-        let wins = parseInt(localStorage.getItem('pq_total_wins')) || 0;
-        let party = JSON.parse(localStorage.getItem('pq_party')) || [{
-            id: 25, name: "pikachu", wins: 0, 
-            sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
-            backSprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/25.png"
-        }];
-        
-        let pos = { x: 5, y: 5 };
-        let weather = "CLEAR";
+        let playerPos = { x: 7, y: 7 };
+        let grassMap = [];
+        let dexData = [];
+        let dexOffset = 0;
         let isBattle = false;
         let activeEnemy = null;
-        let battleState = { php: 100, ehp: 100, charge: 0 };
+        let hp = { enemy: 100, player: 100 };
+        let party = JSON.parse(localStorage.getItem('pq_party')) || [{
+            name: "pikachu",
+            sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
+            backSprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/25.png",
+            types: ["electric"],
+            wins: 0,
+            id: 25
+        }];
+        let items = JSON.parse(localStorage.getItem('pq_items')) || { potion: 5, ball: 5 };
+        let currentWeather = "CLEAR";
 
-        // Core Functions
-        function navigate(view) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(view).classList.add('active');
-            if(view === 'party') renderParty();
-            if(view === 'home') updateStats();
-        }
-
+        // Utility: Toast
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg;
             t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 3000);
+            setTimeout(() => t.style.display = 'none', 2000);
         }
 
-        function updateStats() {
-            document.getElementById('diamond-count').innerText = diamonds;
-            document.getElementById('stat-wins').innerText = wins;
-            document.getElementById('stat-dex').innerText = Math.floor((party.length / 151) * 100) + "%";
-            localStorage.setItem('pq_diamonds', diamonds);
-            localStorage.setItem('pq_total_wins', wins);
+        function saveGame() {
+            localStorage.setItem('pq_party', JSON.stringify(party));
+            localStorage.setItem('pq_items', JSON.stringify(items));
+            showToast("GAME AUTO-SAVED");
         }
 
-        function addGems(n) {
-            diamonds += n;
-            updateStats();
-            showToast(`+${n} DIAMONDS ADDED`);
-        }
-
-        function toggleTheme() {
-            currentTheme = (currentTheme + 1) % THEMES.length;
-            document.body.className = THEMES[currentTheme] === 'default' ? '' : `theme-${THEMES[currentTheme]}`;
-            showToast(`THEME: ${THEMES[currentTheme].toUpperCase()}`);
-        }
-
-        // Gacha System
-        async function performSummon() {
-            if (diamonds < 20) return showToast("NOT ENOUGH DIAMONDS");
-            
-            const btn = document.getElementById('summon-btn');
-            const orb = document.getElementById('summon-orb');
-            const resultDiv = document.getElementById('summon-result');
-            
-            diamonds -= 20;
-            updateStats();
-            btn.disabled = true;
-            orb.classList.add('scale-150', 'rotate-[360deg]', 'blur-sm');
-            
-            // Logic: High Tier ID (Random Legendary/Mythical range or Rare)
-            const id = [144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 382, 383, 384][Math.floor(Math.random() * 13)];
-            
-            try {
-                const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-                const data = await res.json();
-                
-                setTimeout(() => {
-                    orb.classList.remove('scale-150', 'rotate-[360deg]', 'blur-sm');
-                    resultDiv.classList.remove('hidden');
-                    document.getElementById('result-img').src = data.sprites.other['official-artwork'].front_default;
-                    document.getElementById('result-name').innerText = data.name;
-                    
-                    if (party.length < 6) {
-                        party.push({
-                            id: data.id, name: data.name, wins: 0,
-                            sprite: data.sprites.front_default,
-                            backSprite: data.sprites.back_default
-                        });
-                        localStorage.setItem('pq_party', JSON.stringify(party));
-                    }
-                    
-                    btn.disabled = false;
-                    showToast(`SUMMONED ${data.name.toUpperCase()}!`);
-                }, 1000);
-            } catch(e) { 
-                btn.disabled = false;
-                showToast("SUMMON FAILED - CONNECTION ERROR");
+        function resetGame() {
+            if(confirm("WIPE ALL PROGRESS?")) {
+                localStorage.clear();
+                location.reload();
             }
         }
 
-        // Battle Mechanics
-        async function triggerBattle() {
-            isBattle = true;
-            const wildId = Math.floor(Math.random() * 151) + 1;
-            const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${wildId}`);
-            activeEnemy = await res.json();
-            
-            document.getElementById('explore-ui').classList.add('hidden');
-            document.getElementById('battle-ui').classList.remove('hidden');
-            
-            document.getElementById('enemy-name').innerText = activeEnemy.name;
-            document.getElementById('enemy-sprite').src = activeEnemy.sprites.versions['generation-v']['black-white'].animated.front_default || activeEnemy.sprites.front_default;
-            
-            const lead = party[0];
-            document.getElementById('player-name').innerText = lead.name;
-            document.getElementById('player-sprite').src = lead.backSprite || lead.sprite;
-            
-            battleState = { php: 100, ehp: 100, charge: 0 };
-            updateBattleBars();
-            logBattle(`A wild ${activeEnemy.name.toUpperCase()} appeared!`);
-        }
-
-        function updateBattleBars() {
-            document.getElementById('enemy-hp-fill').style.width = battleState.ehp + '%';
-            document.getElementById('player-hp-fill').style.width = battleState.php + '%';
-            document.getElementById('special-fill').style.width = battleState.charge + '%';
-            document.getElementById('special-btn').disabled = battleState.charge < 100;
-        }
-
-        function logBattle(m) {
-            document.getElementById('battle-log').innerText = m;
-        }
-
-        function battleAction(type) {
-            if (type === 'attack' || type === 'special') {
-                const dmg = type === 'special' ? 45 : (Math.floor(Math.random() * 15) + 10);
-                battleState.ehp = Math.max(0, battleState.ehp - dmg);
-                if(type !== 'special') battleState.charge = Math.min(100, battleState.charge + 25);
-                else battleState.charge = 0;
-                
-                logBattle(`${party[0].name.toUpperCase()} used ${type.toUpperCase()}!`);
-                updateBattleBars();
-                
-                if (battleState.ehp <= 0) {
-                    logBattle("YOU WIN!");
-                    wins++;
-                    party[0].wins++;
-                    diamonds += 5;
-                    checkEvolution();
-                    setTimeout(endBattle, 1500);
-                } else {
-                    setTimeout(enemyTurn, 600);
-                }
-            } else if (type === 'catch') {
-                logBattle("Throwing Ultra Ball...");
-                setTimeout(() => {
-                    if (Math.random() > 0.4) {
-                        logBattle("Caught successfully!");
-                        if(party.length < 6) {
-                            party.push({
-                                id: activeEnemy.id, name: activeEnemy.name, wins: 0,
-                                sprite: activeEnemy.sprites.front_default,
-                                backSprite: activeEnemy.sprites.back_default
-                            });
-                            localStorage.setItem('pq_party', JSON.stringify(party));
-                        }
-                        setTimeout(endBattle, 1500);
-                    } else {
-                        logBattle("It broke free!");
-                        enemyTurn();
-                    }
-                }, 800);
+        // Navigation
+        function navigate(id, el) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if (el) {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                el.classList.add('active');
             }
+            if (id === 'pokedex' && dexData.length === 0) loadBatch();
+            if (id === 'academy') initAcademy();
+            if (id === 'leaders') renderLeaders();
+            if (id === 'party') renderParty();
+            window.scrollTo(0, 0);
         }
 
-        function enemyTurn() {
-            const dmg = Math.floor(Math.random() * 10) + 5;
-            battleState.php = Math.max(0, battleState.php - dmg);
-            logBattle(`${activeEnemy.name.toUpperCase()} counters! ${dmg} DMG.`);
-            updateBattleBars();
-            if (battleState.php <= 0) {
-                logBattle("Defeated! Retreating...");
-                setTimeout(endBattle, 1500);
-            }
+        // Party Logic
+        function renderParty() {
+            const list = document.getElementById('party-list');
+            const empty = document.getElementById('party-empty');
+            list.innerHTML = "";
+            if (party.length === 0) { empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+
+            party.forEach((p, idx) => {
+                const card = document.createElement('div');
+                card.className = "neo-box p-4 bg-white flex items-center gap-4 relative";
+                card.innerHTML = `
+                    <div class="w-16 h-16 border-2 border-black p-1 bg-stone-50">
+                        <img src="${p.sprite}" class="w-full h-full object-contain">
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-black uppercase">${p.name}</h4>
+                        <div class="flex gap-1">${p.types.map(t => `<span class="type-badge">${t}</span>`).join('')}</div>
+                        <div class="text-[8px] font-bold mt-1">WINS: ${p.wins || 0} / 3</div>
+                        <div class="hp-bar mt-1"><div class="hp-fill w-full"></div></div>
+                        <button onclick="release(${idx})" class="text-[8px] text-red-500 font-bold uppercase mt-2">Release</button>
+                    </div>
+                    ${idx === 0 ? '<div class="absolute top-2 right-2 bg-yellow-400 text-[8px] px-1 border border-black font-black">LEAD</div>' : ''}
+                `;
+                list.appendChild(card);
+            });
         }
 
-        function endBattle() {
-            isBattle = false;
-            document.getElementById('explore-ui').classList.remove('hidden');
-            document.getElementById('battle-ui').classList.add('hidden');
-            updateStats();
+        function release(idx) {
+            if (party.length <= 1) { showToast("CANNOT RELEASE LAST POKÉMON"); return; }
+            party.splice(idx, 1);
+            saveGame();
+            renderParty();
         }
 
-        async function checkEvolution() {
-            const p = party[0];
-            if (p.wins >= 3) {
+        // Evolution Logic
+        async function checkEvolution(pkmnIdx) {
+            const pkmn = party[pkmnIdx];
+            if ((pkmn.wins || 0) >= 3) {
+                log(`SOMETHING IS HAPPENING TO ${pkmn.name.toUpperCase()}...`);
                 try {
-                    const speciesRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${p.id}`);
-                    const species = await speciesRes.json();
-                    const evoRes = await fetch(species.evolution_chain.url);
-                    const evo = await evoRes.json();
+                    // Fetch species for evolution chain
+                    const speciesRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pkmn.id}`);
+                    const speciesData = await speciesRes.json();
+                    const evolutionRes = await fetch(speciesData.evolution_chain.url);
+                    const evolutionData = await evolutionRes.json();
                     
-                    let curr = evo.chain;
-                    while(curr && curr.species.name !== p.name && curr.evolves_to.length > 0) {
-                        curr = curr.evolves_to[0];
+                    // Find next form in chain
+                    let current = evolutionData.chain;
+                    while (current && current.species.name !== pkmn.name && current.evolves_to.length > 0) {
+                        current = current.evolves_to[0];
                     }
                     
-                    if(curr && curr.evolves_to.length > 0) {
-                        const next = curr.evolves_to[0].species.name;
-                        const nextPkmn = await (await fetch(`https://pokeapi.co/api/v2/pokemon/${next}`)).json();
+                    if (current && current.evolves_to.length > 0) {
+                        const nextFormName = current.evolves_to[0].species.name;
+                        const nextRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${nextFormName}`);
+                        const nextData = await nextRes.json();
                         
-                        party[0] = {
-                            id: nextPkmn.id, name: nextPkmn.name, wins: 0,
-                            sprite: nextPkmn.sprites.front_default,
-                            backSprite: nextPkmn.sprites.back_default
+                        party[pkmnIdx] = {
+                            name: nextData.name,
+                            sprite: nextData.sprites.front_default,
+                            backSprite: nextData.sprites.back_default,
+                            types: nextData.types.map(t => t.type.name),
+                            wins: 0,
+                            id: nextData.id
                         };
-                        showToast(`${p.name.toUpperCase()} EVOLVED!`);
-                        localStorage.setItem('pq_party', JSON.stringify(party));
+                        showToast(`${pkmn.name.toUpperCase()} EVOLVED INTO ${nextData.name.toUpperCase()}!`);
+                        saveGame();
                     }
+                } catch(e) { console.error("Evolution failed", e); }
+            }
+        }
+
+        // Leader Static Logic
+        function renderLeaders() {
+            const grid = document.getElementById('leaders-grid');
+            if (grid.children.length > 0) return;
+            const champs = [
+                { name: "CYNTHIA", color: "bg-stone-900" },
+                { name: "LANCE", color: "bg-red-900" },
+                { name: "STEVEN", color: "bg-blue-900" }
+            ];
+            grid.innerHTML = champs.map(c => `
+                <div class="neo-box bg-white overflow-hidden">
+                    <div class="${c.color} p-6 border-b-4 border-black text-white impact text-xl">${c.name}</div>
+                    <div class="p-6 font-bold text-xs">ELITE DATA: LOCKED</div>
+                </div>
+            `).join('');
+        }
+
+        // Dex Fetching
+        async function loadBatch() {
+            const grid = document.getElementById('dex-grid');
+            const btn = document.getElementById('load-more');
+            btn.disabled = true;
+            for (let i = dexOffset + 1; i <= dexOffset + 12; i++) {
+                try {
+                    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${i}`);
+                    const data = await res.json();
+                    const card = document.createElement('div');
+                    card.className = "neo-box p-2 bg-white text-center";
+                    card.innerHTML = `
+                        <img src="${data.sprites.front_default}" class="mx-auto">
+                        <div class="font-black text-[9px] uppercase">${data.name}</div>
+                    `;
+                    grid.appendChild(card);
                 } catch(e) {}
             }
+            dexOffset += 12;
+            btn.disabled = false;
         }
 
-        // World Engine
-        function initMap() {
+        // Environment & Weather Cycle
+        function updateEnv() {
+            const hour = new Date().getHours();
+            const isNight = hour < 6 || hour > 18;
+            document.body.classList.toggle('night-mode', isNight);
+            document.getElementById('time-display').innerText = `TIME: ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+        }
+        
+        function cycleWeather() {
+            currentWeather = WEATHER_TYPES[Math.floor(Math.random() * WEATHER_TYPES.length)];
+            const display = document.getElementById('weather-display');
+            display.innerText = `WEATHER: ${currentWeather}`;
+            
+            document.body.classList.remove('rain-mode', 'storm-mode');
+            if(currentWeather === 'RAIN') document.body.classList.add('rain-mode');
+            if(currentWeather === 'STORM') document.body.classList.add('storm-mode');
+        }
+
+        setInterval(updateEnv, 1000);
+        setInterval(cycleWeather, 30000); // Change weather every 30 seconds
+
+        // Game Engine
+        function initAcademy() {
+            const container = document.getElementById('game-container');
             const layer = document.getElementById('tiles-layer');
-            const tileSize = document.getElementById('game-container').clientWidth / GRID_SIZE;
-            layer.innerHTML = "";
-            for (let i = 0; i < 40; i++) {
-                const x = Math.floor(Math.random() * GRID_SIZE);
-                const y = Math.floor(Math.random() * GRID_SIZE);
-                const t = document.createElement('div');
-                t.className = 'absolute opacity-40 text-xs flex items-center justify-center';
-                t.style.left = (x * tileSize) + 'px';
-                t.style.top = (y * tileSize) + 'px';
-                t.style.width = tileSize + 'px';
-                t.style.height = tileSize + 'px';
-                t.innerText = "🌿";
-                layer.appendChild(t);
+            document.getElementById('party-count').innerText = `PARTY: ${party.length}/6`;
+            if (layer.children.length > 0) return;
+            const tileSize = container.clientWidth / GRID_SIZE;
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    if (Math.random() > 0.85) {
+                        const t = document.createElement('div');
+                        t.className = 'grid-tile tall-grass';
+                        t.style.cssText = `width:${tileSize}px; height:${tileSize}px; left:${x*tileSize}px; top:${y*tileSize}px;`;
+                        t.innerHTML = "🌿";
+                        layer.appendChild(t);
+                        grassMap.push({ x, y });
+                    }
+                }
             }
             updatePlayer();
         }
 
         function move(dx, dy) {
-            if(isBattle) return;
-            const nx = pos.x + dx;
-            const ny = pos.y + dy;
-            if(nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
-                pos.x = nx; pos.y = ny;
+            if (isBattle) return;
+            const nx = playerPos.x + dx;
+            const ny = playerPos.y + dy;
+            if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
+                playerPos.x = nx; playerPos.y = ny;
                 updatePlayer();
-                if(Math.random() > 0.85) triggerBattle();
+                if (grassMap.some(g => g.x === playerPos.x && g.y === playerPos.y) && Math.random() > 0.6) {
+                    triggerBattle();
+                }
             }
         }
 
         function updatePlayer() {
-            const tileSize = document.getElementById('game-container').clientWidth / GRID_SIZE;
             const p = document.getElementById('player');
-            p.style.left = (pos.x * tileSize) + 'px';
-            p.style.top = (pos.y * tileSize) + 'px';
-            p.style.width = tileSize + 'px';
-            p.style.height = tileSize + 'px';
+            const ts = document.getElementById('game-container').clientWidth / GRID_SIZE;
+            p.style.cssText = `width:${ts}px; height:${ts}px; left:${playerPos.x*ts}px; top:${playerPos.y*ts}px;`;
         }
 
-        function updateWeather() {
-            const weathers = ['CLEAR', 'RAIN', 'STORM'];
-            weather = weathers[Math.floor(Math.random() * weathers.length)];
-            const label = document.getElementById('weather-label');
-            const fx = document.getElementById('weather-fx');
-            label.innerText = `Weather: ${weather}`;
-            
-            fx.className = "absolute inset-0 z-10";
-            if(weather === 'RAIN') fx.classList.add('rain-overlay', 'bg-blue-500/10');
-            if(weather === 'STORM') fx.classList.add('storm-overlay', 'bg-indigo-900/20');
+        async function triggerBattle() {
+            isBattle = true;
+            document.getElementById('overlay').classList.add('flashing');
+            const id = Math.floor(Math.random() * 151) + 1;
+            try {
+                const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+                activeEnemy = await res.json();
+                setTimeout(() => {
+                    document.getElementById('overlay').classList.remove('flashing');
+                    document.getElementById('explore-ui').classList.add('hidden');
+                    document.getElementById('battle-ui').classList.remove('hidden');
+                    
+                    const lead = party[0];
+                    document.getElementById('battle-player-name').innerText = lead.name.toUpperCase();
+                    document.getElementById('battle-player-sprite').src = lead.backSprite || lead.sprite;
+                    
+                    document.getElementById('battle-enemy-name').innerText = activeEnemy.name.toUpperCase();
+                    document.getElementById('battle-enemy-sprite').src = activeEnemy.sprites.versions['generation-v']['black-white'].animated.front_default || activeEnemy.sprites.front_default;
+                    
+                    const typesDiv = document.getElementById('battle-enemy-types');
+                    typesDiv.innerHTML = activeEnemy.types.map(t => `<span class="type-badge bg-black text-white">${t.type.name}</span>`).join('');
+                    
+                    hp = { enemy: 100, player: 100 };
+                    updateBars();
+                    log(`WILD ${activeEnemy.name.toUpperCase()} APPEARED! WEATHER IS ${currentWeather}.`);
+                }, 600);
+            } catch(e) { isBattle = false; }
         }
 
-        function renderParty() {
-            const list = document.getElementById('party-list');
-            list.innerHTML = party.map((p, idx) => `
-                <div class="neo-box p-4 flex items-center justify-between bg-white">
-                    <div class="flex items-center gap-4">
-                        <img src="${p.sprite}" class="w-12 h-12">
-                        <div>
-                            <div class="font-black uppercase text-sm">${p.name}</div>
-                            <div class="text-[9px] font-bold opacity-50">Wins: ${p.wins}/3</div>
-                        </div>
-                    </div>
-                    ${idx === 0 ? '<div class="premium-tag">LEAD</div>' : `<button onclick="setLead(${idx})" class="text-[10px] font-bold underline">MAKE LEAD</button>`}
-                </div>
-            `).join('');
+        function updateBars() {
+            document.getElementById('enemy-hp').style.width = hp.enemy + '%';
+            document.getElementById('player-hp').style.width = hp.player + '%';
         }
 
-        function setLead(idx) {
-            const [item] = party.splice(idx, 1);
-            party.unshift(item);
-            localStorage.setItem('pq_party', JSON.stringify(party));
-            renderParty();
-            showToast("LEAD POKEMON UPDATED");
+        function battleAction(type, isNeutral = false) {
+            if (type === 'attack') {
+                let multiplier = 1;
+                const lead = party[0];
+                let moveType = isNeutral ? 'Normal' : (lead.types[0].charAt(0).toUpperCase() + lead.types[0].slice(1));
+                
+                // Logic: Check type advantage
+                const enemyType = activeEnemy.types[0].type.name.charAt(0).toUpperCase() + activeEnemy.types[0].type.name.slice(1);
+                if (TYPE_CHART[moveType] && TYPE_CHART[moveType][enemyType] !== undefined) {
+                    multiplier = TYPE_CHART[moveType][enemyType];
+                }
+
+                // Weather Modifiers
+                if (currentWeather === 'RAIN' && lead.types.includes('water')) multiplier *= 1.5;
+                if (currentWeather === 'STORM' && lead.types.includes('electric')) multiplier *= 1.5;
+
+                const base = Math.floor(Math.random() * 15) + 15;
+                const dmg = Math.floor(base * multiplier);
+                hp.enemy = Math.max(0, hp.enemy - dmg);
+                
+                let msg = `${lead.name.toUpperCase()} used STRIKE! Deals ${dmg} dmg.`;
+                if (multiplier > 1) msg += " IT'S SUPER EFFECTIVE!";
+                if (multiplier < 1 && multiplier > 0) msg += " IT'S NOT VERY EFFECTIVE...";
+                
+                log(msg);
+                updateBars();
+                
+                if (hp.enemy <= 0) { 
+                    log("TARGET FAINTED!"); 
+                    party[0].wins = (party[0].wins || 0) + 1;
+                    checkEvolution(0);
+                    setTimeout(endBattle, 1500); 
+                }
+                else enemyTurn();
+            } else if (type === 'catch') {
+                log("THREW POKÉ BALL...");
+                setTimeout(() => {
+                    if (Math.random() > (hp.enemy / 100)) {
+                        log("GOTCHA! ADDED TO PARTY.");
+                        if (party.length < 6) {
+                            party.push({
+                                name: activeEnemy.name,
+                                sprite: activeEnemy.sprites.front_default,
+                                backSprite: activeEnemy.sprites.back_default,
+                                types: activeEnemy.types.map(t => t.type.name),
+                                wins: 0,
+                                id: activeEnemy.id
+                            });
+                            saveGame();
+                        } else { log("PARTY FULL! RELEASED."); }
+                        setTimeout(endBattle, 1500);
+                    } else { log("BROKE FREE!"); enemyTurn(); }
+                }, 800);
+            }
         }
 
-        // Initialize
-        window.onload = () => {
-            initMap();
-            updateStats();
-            setInterval(updateWeather, 15000);
-            updateWeather();
-        };
+        function enemyTurn() {
+            setTimeout(() => {
+                const dmg = Math.floor(Math.random() * 10) + 5;
+                hp.player = Math.max(0, hp.player - dmg);
+                log(`${activeEnemy.name.toUpperCase()} ATTACKED! ${dmg} DMG.`);
+                updateBars();
+                if (hp.player <= 0) { log("PIKACHU FAINTED! RUNNING..."); setTimeout(endBattle, 1500); }
+            }, 800);
+        }
 
-        // Key Listeners
+        function log(m) { document.getElementById('battle-log').innerText = m; }
+        function endBattle() {
+            isBattle = false;
+            document.getElementById('explore-ui').classList.remove('hidden');
+            document.getElementById('battle-ui').classList.add('hidden');
+        }
+
+        window.onload = () => { updateEnv(); renderLeaders(); cycleWeather(); };
         window.addEventListener('keydown', (e) => {
-            if(e.key === 'ArrowUp') move(0, -1);
-            if(e.key === 'ArrowDown') move(0, 1);
-            if(e.key === 'ArrowLeft') move(-1, 0);
-            if(e.key === 'ArrowRight') move(1, 0);
+            if (e.key === 'ArrowUp') move(0, -1);
+            if (e.key === 'ArrowDown') move(0, 1);
+            if (e.key === 'ArrowLeft') move(-1, 0);
+            if (e.key === 'ArrowRight') move(1, 0);
         });
     </script>
 </body>
